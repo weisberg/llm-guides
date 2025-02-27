@@ -1,0 +1,433 @@
+I will research the latest updates and official documentation on Domo Bricks and the Domo App Framework, ensuring the guide is comprehensive, detailed, and structured effectively for an expert developer audience. This will include in-depth examples and code snippets for LLMs to understand the full scope of development possibilities in Domo. I'll update you once the guide is ready.
+
+# Domo Bricks & App Framework Developer Guide
+
+> This guide provides a comprehensive walkthrough for top-tier developers to build custom Domo cards and applications using **Domo Bricks** and the **Domo App Framework**. It covers the latest capabilities – from advanced visualization Bricks to the App Framework’s CLI tools and AppDB – ensuring you can design, deploy, and integrate custom Domo apps entirely within the Domo ecosystem without external references. Key functionalities like interactive DDX Bricks, the Domo App CLI, AppDB persistent storage, and best practices for leveraging Domo’s APIs are included to enable efficient, scalable development on the Domo platform.
+
+## Overview of Domo Bricks (DDX Bricks)
+
+**Domo Bricks** (formerly known as **DDX Bricks**) are pre-built code templates that enable highly customized data visualizations and interactive components within Domo dashboards ([3 Powerful Domo DDX Bricks Examples, Co-Built by ChatGPT](https://www.graphable.ai/blog/domo-ddx-bricks/#:~:text=Domo%20DDX%20Bricks%20are%20pre,such%20as%20OpenAI%E2%80%98s%20ChatGPT)). They allow developers to use standard web technologies – HTML, CSS, and JavaScript – directly inside Domo cards to create visuals or apps beyond the standard chart types. Bricks can be dragged and dropped into Domo’s App Studio or Stories and then modified with code for ultimate flexibility ([ Domo Bricks for advanced data visualization. | Domo ](https://www.domo.com/business-apps/domo-bricks#:~:text=Get%20flexibility%2C%20speed%2C%20and%20customization,in%20apps)) ([ Domo Bricks for advanced data visualization. | Domo ](https://www.domo.com/business-apps/domo-bricks#:~:text=Create%20stunning%20visualizations%20in%20apps,and%20dashboards)). Each Brick template can connect to Domo data and be fully tailored using your front-end development skills ([ Domo Bricks for advanced data visualization. | Domo ](https://www.domo.com/business-apps/domo-bricks#:~:text=Domo%20Bricks%20help%20you%20visualize,visualizations%20already%20available%20in%20Domo)).
+
+Domo provides an ecosystem of hundreds of Brick templates for various use cases ([ Domo Bricks for advanced data visualization. | Domo ](https://www.domo.com/business-apps/domo-bricks#:~:text=Drag%20and%20drop%20a%20Domo,it%20to%20meet%20your%20needs)). You can start by finding a Brick in the Domo Appstore, adding it to a dashboard or app, and then binding it to a Domo Dataset with a few clicks ([ Domo Bricks for advanced data visualization. | Domo ](https://www.domo.com/business-apps/domo-bricks#:~:text=Start%20building%20today)) ([ Domo Bricks for advanced data visualization. | Domo ](https://www.domo.com/business-apps/domo-bricks#:~:text=)). Once added, the Brick’s code is editable in a real-time editor where you have complete control to implement custom logic (you can even import popular libraries like D3, Chart.js, or Mapbox for advanced visuals ([ Domo Bricks for advanced data visualization. | Domo ](https://www.domo.com/business-apps/domo-bricks#:~:text=Develop%20apps%20faster,js))). For example, a Brick could be as simple as displaying a formatted KPI or as sophisticated as an interactive chart with filters and drill-downs.
+
+**Example – A Simple Domo Brick:** Below is a basic example of an HTML/JS Brick that displays a counter button. It shows how you can mix HTML structure and JavaScript interactivity inside a Domo Brick card:
+
+```html
+<div>
+  <h3>Visitor Count:</h3>
+  <p id="count">0</p>
+  <button id="incrementBtn">+1</button>
+</div>
+
+<script>
+  let count = 0;
+  document.getElementById('incrementBtn').onclick = function() {
+    count++;
+    document.getElementById('count').innerText = count;
+  };
+</script>
+```
+
+In this Brick code, the initial HTML defines a header, a paragraph to show the count, and a button. The script then attaches a click handler to increment the counter. When deployed in Domo, this Brick can be dropped into any dashboard and will run entirely client-side. To connect a Brick to data, Domo provides a global `datasets` object and a `domo` library. For instance, if you attach a Domo Dataset to the Brick via the UI, you can access it in your code (e.g., `window.datasets[0]` for the first dataset) or use `domo.get()` calls to retrieve data dynamically. The Brick environment exposes `window.domo` as an API client and `window.datasets` as any pre-linked data ([3 Powerful Domo DDX Bricks Examples, Co-Built by ChatGPT](https://www.graphable.ai/blog/domo-ddx-bricks/#:~:text=%2F%2F,getElementById%28%27runButton)). This means you can fetch or manipulate Domo data directly in your Brick code. For example, to retrieve rows from a dataset alias “salesData” in a Brick, you could call: 
+
+```js
+domo.get(`/data/v1/salesData?limit=100`)
+  .then(data => {
+    console.log("Sample Data Rows:", data);
+  });
+```
+
+This flexibility of Domo Bricks allows you to rapidly prototype and build infinite types of business visualizations ([3 Powerful Domo DDX Bricks Examples, Co-Built by ChatGPT](https://www.graphable.ai/blog/domo-ddx-bricks/#:~:text=Image%3A%20Domo%20DDX%20Bricks%20,90)). You can start from a template or from scratch, embed custom styling, add interactive JS logic, and integrate with Domo’s platform (for instance, using Domo’s APIs to trigger alerts or workflows). Bricks are fully compatible with Domo’s App Framework as well, meaning you can use them inside larger custom apps ([New Guy Here - What's the Point of Apps?? - Domo Community Forum](https://community-forums.domo.com/main/discussion/68237/new-guy-here-whats-the-point-of-apps#:~:text=New%20Guy%20Here%20,are%20fully%20compatible%20with%20AppStudio)). Once you create a useful Brick, you can even package it and publish to the Domo Appstore for others to reuse ([ Domo Bricks for advanced data visualization. | Domo ](https://www.domo.com/business-apps/domo-bricks#:~:text=Choose%20from%20a%20broad%20selection,Domo%20and%20the%20Domo%20Community)).
+
+## Overview of the Domo App Framework
+
+The **Domo App Framework** is a pro-code developer platform for building fully custom applications on top of Domo ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Domo%E2%80%99s%20App%20Dev%20Framework)). It provides the infrastructure and tools to develop, host, and distribute web applications (“Business Apps”) that run within the Domo environment. With the App Framework, developers work in a familiar stack (HTML/JS/CSS and popular frameworks like React or Vue) but leverage Domo’s services for data, user management, and security ([Vue + Vite setup for DOMO? — Domo Community Forum](https://community-forums.domo.com/main/discussion/57610/vue-vite-setup-for-domo#:~:text=Sure%20thing%20%40Rich%20%20%2C,end%20frameworks%20like%20React%2FVue%2FAngular)) ([Vue + Vite setup for DOMO? — Domo Community Forum](https://community-forums.domo.com/main/discussion/57610/vue-vite-setup-for-domo#:~:text=%60https%3A%2F%2Fdeveloper.domo.com%2Fdocs%2Fdev)).
+
+**Key Components of the App Framework:**
+
+- **Domo App CLI (Dev Studio):** A command-line interface tool that connects to your Domo instance and streamlines app development tasks – creating a new app project, editing code, and publishing updates to Domo ([Create a Domo App: Easy 4 Step Guide with the React Library.](https://www.graphable.ai/blog/domo-app/#:~:text=datasets%2C%20add%20new%20datasets%2C%20as,edit%2C%20and%20publish%20app%20designs)) ([Create a Domo App: Easy 4 Step Guide with the React Library.](https://www.graphable.ai/blog/domo-app/#:~:text=First%2C%20you%20will%20need%20to,window%20and%20follow%20the%20prompts)). The CLI provides commands to initialize app manifests, run a local development server, and deploy your app to Domo. It essentially serves as your interface to Domo’s “App Studio” environment from your local machine. For example, with the CLI you can log in to your Domo instance and quickly scaffold a new app with a default `manifest.json` and boilerplate code.
+
+- **App Manifest:** A JSON configuration file (`manifest.json`) that defines your app’s metadata and requirements. It includes the app’s name, description, sizing (in grid units for card layout), and importantly the data and resource mappings your app needs. For instance, in the manifest you declare what Domo Datasets your app will use (by Dataset ID and an alias name) and any AppDB collections it requires. The manifest drives how Domo provisions data to your app and how it’s displayed as a card ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=Create%20your%20App%27s%20manifest)) ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=,when%20prompted)). (We’ll see an example manifest in the next sections.)
+
+- **Domo AppDB (App Database):** A flexible, instance-specific database for each app deployment, allowing your app to store and retrieve data (like user input, intermediate results, or small reference tables) in a **NoSQL JSON document** format ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=App%20DB)). Every instance of your app (each card added to a dashboard) gets its own isolated AppDB by default ([Domo Developer Portal](https://developer.domo.com/#:~:text=App%20Framework%3A%20The%20Domo%20App,transactional%20database%20called%20AppDB%2C)). You interact with AppDB via JavaScript APIs (for example, using `domo.post` to insert a document into a collection) and can even sync AppDB collections to Domo datasets for long-term storage or cross-app sharing ([Regarding domo APP DB — Domo Community Forum](https://community-forums.domo.com/main/discussion/55320/regarding-domo-app-db#:~:text=Hi%20%40ravikirand)). AppDB is cloud-hosted and auto-scales like the rest of Domo, so you don’t worry about infrastructure ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=App%20DB)). We cover concrete usage of AppDB in a later section.
+
+- **Hosting & Security:** When you deploy an app, Domo hosts it on a serverless infrastructure. The app inherits all Domo platform features such as user authentication, role-based permissions, and governance controls out-of-the-box ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Fully%20integrated%20with%20Domo)). This means if a user doesn’t have access to a Dataset, your app won’t be able to retrieve that data for them, automatically enforcing security. You also don’t need to manage servers or scaling; Domo handles the runtime so your app can serve an entire enterprise without custom DevOps ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Cloud%20speed%20and%20simplicity)) ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Hosting%20%26%20Compute)). Additionally, the Domo platform offers integration points like the Files API (for storing media or files used by your app) and **Domo Workflows** (to trigger automated processes) that you can call from your app ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Build%20it%20yourself%20or%20work,with%20Domo)).
+
+- **App Distribution:** Apps built with the framework can be deployed internally or shared. Once published, an app design appears in your Domo instance’s **App Library** where it can be instantly added as a card to any dashboard (potentially multiple times, with different data per instance) ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=Using%20your%20Custom%20App)) ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=,Data)). You can also list apps on the Domo Appstore for others if you choose to share with the community or customers.
+
+In summary, the App Framework lets you **“Supercharge your app development”** by focusing on front-end code and logic while relying on Domo for data connectivity, user management, and scaling ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Supercharge%20your%20app%20development)) ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Cloud%20speed%20and%20simplicity)). It blends the agility of typical web app development (you can use your preferred IDE, frameworks, and build tools) with the power of Domo’s data platform (easy access to 1000+ connectors, integration into Domo’s data warehouse, and so on ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Build%20it%20yourself%20or%20work,with%20Domo)) ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Integrate%20data))). In the following sections, we’ll set up the development environment, build a sample custom card using this framework, integrate AppDB, and review examples and best practices.
+
+## Setting Up a Development Environment
+
+Before writing any code, ensure your environment is ready for Domo app development. As an experienced developer, you likely have Node.js and Git setup – the Domo App Framework will integrate with those. Here’s how to get started:
+
+1. **Obtain Domo Developer Access:** Make sure you have a Domo instance where you have developer or admin privileges (at least the ability to create and publish apps). If you don’t have an instance, register for a Domo developer account or trial ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Build%20it%20yourself%20or%20work,with%20Domo)). There isn’t a separate “dev sandbox” needed – you will develop locally and then deploy to your Domo instance.
+
+2. **Install the Domo CLI (Dev Studio CLI):** Domo provides a CLI called **`domo`** (sometimes referred to as “ryuu”) to manage app projects. On macOS, you can install it via Homebrew: 
+
+   ```bash
+   brew install DomoApps/ryuu/domo
+   ```
+    ([Create a Domo App: Easy 4 Step Guide with the React Library.](https://www.graphable.ai/blog/domo-app/#:~:text=OS%20and%20then%20run%20this,window%20and%20follow%20the%20prompts)). 
+
+   For Windows, you can use the Windows Subsystem for Linux or follow Domo’s Windows installer instructions (available on the Domo Developer Portal). Typically, on Windows you download a package or use a package manager (like Chocolatey or an MSI) to install the `domo` CLI. Once installed, verify by running `domo --version` in a terminal.
+
+3. **Initialize Dev Studio and Login:** Open a terminal and run `domo login`. This command will prompt you to select or add a Domo instance and authenticate ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=,the%20following%20in%20your%20terminal)) ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=,to%20publish%20to%20that%20instance)). If it’s the first time, choose “new instance” and enter your Domo domain (e.g., `company.domo.com`). A browser window will open for you to log in to Domo and authorize the CLI. After logging in, the CLI is linked to your Domo instance and will store your credentials/token. (If the CLI prompts for an update during login, allow it to update to the latest version ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=%2A%20Select%20the%20correct%20,are%20ready%20to%20publish%20to)).)
+
+4. **Set Up a Project Workspace:** Create a new directory for your Domo app project and `cd` into it. You have two main options to start a project:
+   - **Use the Domo CLI Scaffold:** Run `domo init`. This will interactively guide you to create a new app manifest in the current directory ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=Create%20your%20App%27s%20manifest)). You’ll be asked for an app name, whether to include a manifest only or a full starter (you can choose a template or “manifest only” for a blank slate ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=Create%20your%20App%27s%20manifest))), and if you want to connect a dataset now. If you have a specific Dataset ready, say yes and provide the Dataset ID and an alias name when prompted ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=,when%20prompted)). The CLI will generate a `domo/manifest.json` file (and possibly some starter code files depending on your choices).
+   - **Use a Framework Starter Kit:** If you plan to build with a specific framework (React, Vue, etc.), you might start by creating a standard project with those tools (e.g., `npx create-react-app myDomoApp`). Once your app’s base is created, you’ll need to add a `domo/manifest.json` to the project to configure it for Domo, and install the Domo JS library (below). Domo has provided sample starter kits for frameworks like React and Vue which you can reference, but essentially you integrate the Domo manifest and CLI into your existing project structure.
+
+5. **Install domo.js Library:** Domo apps use a JavaScript library **domo.js** to interact with Domo’s environment (datasets, users, groups, etc.) ([Filter Request from Custom Domo App — Domo Community Forum](https://community-forums.domo.com/main/discussion/58341/filter-request-from-custom-domo-app#:~:text=Hi%20everyone%2C%20I%20am%20currently,time%20interactive%20operations)) ([Vue + Vite setup for DOMO? — Domo Community Forum](https://community-forums.domo.com/main/discussion/57610/vue-vite-setup-for-domo#:~:text=%60https%3A%2F%2Fdeveloper.domo.com%2Fdocs%2Fdev)). In many templates, this may be included by default, but if not, you should add it. The domo.js file (part of the “ryuu” toolkit) can be installed via NPM by running `npm install ryuu.js` or by including a `<script>` reference to the library provided by Domo. For example, you might have a script tag like:
+   ```html
+   <script src="https://<your_instance>.domo.com/cards/api/ryuu.js"></script>
+   ```
+   in your HTML, which loads `domo.js`. After including it, a global `window.domo` object becomes available in your app. In a React/Webpack setup, you can import it or simply ensure it’s loaded globally.
+
+   *Note:* The domo.js library allows you to call Domo APIs (for data, user info, etc.) directly from the browser. When running locally, these calls might fail due to cross-domain issues or missing authentication. Domo provides a workaround by letting you develop in an embedded mode or by testing logic after deployment. Ensure that when testing locally, you stub or mock any `domo.get()` calls, or use the CLI’s preview features (some developers add `localhost` as an allowed origin in Domo to test, but the simplest path is deploying to Domo to test data calls).
+
+6. **Project Structure:** By now, you should have a project folder with at least a `domo/manifest.json` and some source code (HTML/JS or a full app). The manifest file is crucial – open it in your editor. It will look something like this (minimal example):
+
+   ```json
+   {
+     "name": "My Custom App",
+     "description": "Demo of a custom Domo app",
+     "width": 2,
+     "height": 2,
+     "datasets": [
+       {
+         "id": "abcdef12-3456-7890-abcd-ef1234567890",
+         "alias": "myData"
+       }
+     ],
+     "collections": [
+       {
+         "name": "MyCollection",
+         "schema": {
+           "columns": [
+             {"name": "task", "type": "STRING"},
+             {"name": "completed", "type": "BOOLEAN"}
+           ]
+         },
+         "syncEnabled": false
+       }
+     ]
+   }
+   ```
+   In this sample manifest, we define an app named *My Custom App* with a default size of 2×2 tiles on a dashboard. It declares one dataset requirement (identified by GUID, with an alias "myData" that we’ll use in code) and one AppDB collection named "MyCollection" with a simple schema (two fields) and sync disabled. The `datasets` section (or in some versions, it might be `"dataSets"` or `"mapping"`) tells Domo what data the app needs; the `collections` section specifies any AppDB usage. If `syncEnabled` were `true`, we could also specify a `dataSetId` in the collection to sync its data out to a Domo dataset (more on sync in the AppDB section). Always double-check the manifest fields with Domo’s docs for any new attributes or changes – for example, you can also specify things like icons, categories, or required Domo features in the manifest.
+
+7. **Install Dependencies:** If your app uses any NPM dependencies (for example, React or other libraries), install them via `npm install`. The Domo CLI doesn’t restrict what libraries you use – you can use any packages for front-end UI, charts, utilities, etc. Domo’s own visualization components (like **Domo Phoenix** or D3-based widgets) are available via NPM under the `@domoinc` namespace ([GitHub - DomoApps/starter-kit: This is an advanced Domo App project starter (boilerplate).](https://github.com/DomoApps/starter-kit#:~:text=Domo%20has%20a%20growing%20library,a%20familiarity%20would%20be%20helpful)) ([GitHub - DomoApps/starter-kit: This is an advanced Domo App project starter (boilerplate).](https://github.com/DomoApps/starter-kit#:~:text=These%20widgets%20are%20available%20to,list%20of%20all%20of%20our)), but you can also use any open-source library of your choice to build your UI.
+
+With the environment set up, you’re now ready to start building and running your app. In the next section, we will build a custom Domo card step-by-step, integrating dataset data and using AppDB for state.
+
+## Building a Custom Domo Card (Step-by-Step)
+
+In this section, we’ll walk through creating a simple custom app (a “Hello World” style example, but with real Domo data and a visualization) and deploying it as a card in Domo. This will illustrate the end-to-end development workflow using Domo Bricks and the App Framework together.
+
+**1. Initialize the App Project:** (If you followed the setup above, you may have done this.) Use the Domo CLI to create a new app or use an existing starter. For our example, let’s say we created a basic app with `domo init` and connected one dataset (alias **myData**). The manifest is configured with that dataset. We also defined an AppDB collection for demo purposes in the manifest. 
+
+**2. Develop the App Frontend:** Open your code editor and locate the main application file. In a simple setup, this could be an `index.html` and `script.js` (for a vanilla JS app) or `src/App.js` (for a React app). We will create a very simple UI: display a greeting and some data from the dataset, and allow adding a new item which gets saved to AppDB.
+
+- *HTML/UI:* For simplicity, in a single-page app scenario, you might directly edit the `index.html`. If using React, you’d edit `App.js` to render JSX. Our app will have:
+  - A header that says “Hello Domo!”
+  - A section that displays a few records from the dataset (for example, list the first 5 rows).
+  - An input form to add a new “task” (demonstrating writing to AppDB and reading it back).
+
+  Here’s how the HTML might look (in a vanilla JS context):
+
+  ```html
+  <h1>Hello Domo App</h1>
+  <div id="dataPreview">
+    <h3>Data Preview:</h3>
+    <ul id="dataList"></ul>
+  </div>
+  <div id="newTaskForm">
+    <h3>Add Task:</h3>
+    <input type="text" id="taskName" placeholder="Task name" />
+    <button id="addTaskBtn">Add Task</button>
+    <p id="statusMsg"></p>
+  </div>
+  ```
+
+  This sets up placeholders: an unordered list for data (`#dataList`) and a simple form with a text input and button to add a task.
+
+- *JavaScript Logic:* Now, in a script (either a separate `.js` or within a script tag), we write the logic to populate data and handle the form. We’ll use the Domo provided APIs:
+  - Use `domo.get` to fetch data from the dataset alias `myData`.
+  - Use `domo.post` to insert a document into the AppDB collection "MyCollection" when a new task is added.
+  - Then refresh the display.
+
+  Example script (assuming global `domo` is available and our alias and collection are set as above):
+
+  ```js
+  // 1. Fetch some data from the Domo dataset
+  domo.get(`/data/v1/myData?limit=5`)
+    .then(rows => {
+      const listEl = document.getElementById('dataList');
+      rows.forEach(row => {
+        // Assuming each row is an array of values; adjust if it's an object with keys
+        const li = document.createElement('li');
+        li.textContent = JSON.stringify(row);
+        listEl.appendChild(li);
+      });
+    })
+    .catch(err => console.error("Data fetch error:", err));
+
+  // 2. Add event listener to the button for adding a task
+  document.getElementById('addTaskBtn').onclick = function() {
+    const taskName = document.getElementById('taskName').value;
+    if (!taskName) return;
+    const newDoc = { content: { task: taskName, completed: false } };
+    domo.post(`/domo/datastores/v1/collections/MyCollection/documents`, newDoc)
+      .then(insertedDoc => {
+        document.getElementById('statusMsg').innerText = "Task added: " + taskName;
+        console.log("Inserted document:", insertedDoc);
+      })
+      .catch(err => {
+        document.getElementById('statusMsg').innerText = "Error adding task.";
+        console.error("AppDB insert error:", err);
+      });
+  };
+  ```
+
+  Let’s break down what this script does:
+  - On load, it calls `domo.get` with the dataset API endpoint for alias **myData**. Domo automatically substitutes the actual dataset ID behind the scenes (because in the manifest we mapped the alias to a specific dataset) ([Custom Domo App (Replicating the SugarForce example) — Domo Community Forum](https://community-forums.domo.com/main/discussion/68210/custom-domo-app-replicating-the-sugarforce-example#:~:text=In%20your%20manifest%20file%20you,leads)). We limit to 5 rows for brevity. The returned `rows` is an array of the first 5 rows of data. We then create `<li>` elements to display each row in our `#dataList` UI element.
+  - We attach a click handler to the “Add Task” button. When clicked, it reads the input value and constructs a new document for AppDB. The AppDB API endpoint for inserting a document is `/domo/datastores/v1/collections/MyCollection/documents` (where “MyCollection” is the collection name defined in manifest). We `POST` a JSON object with a `content` property containing our task fields. If successful, the promise returns the inserted document (with an `id` and metadata). We update a status message for the user and optionally log the result. If there’s an error (e.g., permissions or network issues), we handle it.
+
+  This simple example demonstrates using **Domo’s front-end APIs**: the `domo.get` for dataset retrieval and `domo.post` for AppDB insertion. Under the hood, `domo.get('/data/v1/myData')` is calling Domo’s Data API (v1) for that dataset. Similarly, the AppDB call hits the AppDB API. These calls work because when the app runs in Domo, it’s authorized as the current user and on the same domain, so no extra auth code is needed – the `domo` library handles the requests with the user’s session. (If you tried to run this outside Domo without authentication, it would fail, which is why local testing of such calls requires either an embed token or deploying to Domo.)
+
+- *Using Domo Phoenix (optional):* If your use case is to create a chart, you can utilize Domo’s Phoenix charting library, which is available via the global `DomoPhoenix` object when you include the Phoenix script. For example, to plot data, you could do:
+  ```js
+  const chartData = {
+    rows: [ ["Category A", 120], ["Category B", 75] ],
+    columns: [
+      { name: "Category", type: "STRING" },
+      { name: "Value", type: "NUMBER" }
+    ]
+  };
+  const options = { legend: 'right' };  // some chart options
+  const chart = new DomoPhoenix.Chart(DomoPhoenix.CHART_TYPE.BAR, chartData, options);
+  document.getElementById('chartContainer').appendChild(chart.canvas);
+  ```
+  This would create a simple bar chart. DomoPhoenix expects a specific data format (with `rows` and `columns` arrays as shown) ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=Phoenix%20expects%20data%20in%20the,following%20format)) and provides many chart types and customization options ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=const%20chart%20%3D%20new%20DomoPhoenix,data%2C%20options)) ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=,charts%20are%20found%20on%20the)). Using Phoenix or other Domo-provided chart components can accelerate building standard visuals, but since Bricks allow any library, you could also directly use libraries like Chart.js or D3.
+
+**3. Test the App Locally:** At this point, you have HTML and JS for your app. It’s wise to test basic functionality locally (especially layout and any pure front-end logic). If your project has a dev server (e.g., `npm start` from Create React App), run it and open the local URL (often `http://localhost:3000`). You should see your UI. Keep in mind that calls to `domo.get` and `domo.post` will not succeed locally unless you have some proxy or token – which typically you don’t for quick tests. One strategy for testing is to stub those calls (return sample data or log output) when running outside Domo. You might detect if `window.domo` is undefined and then use dummy data. However, the simplest approach to truly test data integration is to deploy to a Domo card and run it in the Domo environment.
+
+**4. Deploy (Publish) the App to Domo:** Use the Domo CLI to build and publish your app to your Domo instance. If your project has a build step (for example, bundling with webpack), run that first (e.g., `npm run build`). Ensure that the output (HTML/CSS/JS) and the manifest are all up-to-date. Then run:
+
+```bash
+domo publish
+```
+*(If using a custom setup, the command might be wrapped, e.g., `npm run deploy` which internally calls the `domo` CLI to publish ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=Publish%20your%20App)).)* The CLI will upload your app’s files and manifest to Domo. On success, your app is now an “App Design” in the Domo environment (essentially, a template ready to instantiate).
+
+Alternatively, you might have used `domo develop` during development – this mode continuously deploys changes (the CLI might auto-upload changes every few seconds while you work). For a first-time deploy, though, `domo publish` is sufficient. If the CLI returns no errors, your app is in Domo’s App Library.
+
+**5. Add the App as a Card in Domo:** Log in to your Domo instance in a web browser. Navigate to the page/dashboard where you want to place the app card. Click **Add Card** and choose **“Design”** (or “Custom App”) as the card type ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=To%20use%20your%20Custom%20App%2C,To%20do%20this)). This opens the App creation dialog. You should see your newly published app listed (by the name from your manifest) among available apps. Select your app and click **“New Card”** ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=%2A%20Select%20,with%20the%20dataset%20alias%20you)).
+
+   You will be prompted to configure the app instance. Since our manifest declared a dataset alias `myData`, the interface will ask us to choose a dataset for that alias (unless it was already fixed). Select an appropriate dataset from your Domo Data Center to feed the app ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=,Data%20Preview)). You’ll see a preview of the data schema to confirm it matches what the app expects. Then, if everything looks good, click **“Save & Finish”** ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=%2A%20Open%20the%20,a%20Card%20to%20the%20Page)). Domo will create the app instance (card) on the page.
+
+   At this point, the app is live on the dashboard. It will load the data from the selected dataset and run your code. You should see the “Hello Domo App” header, a list of data points from the dataset, and the input form. Try entering a task and clicking “Add Task” – the status message should update and in a real scenario, you could then fetch and display the AppDB-stored tasks (you might extend the code to refresh the list from AppDB as well).
+
+**6. Iterate & Debug:** If you need to make changes (which is likely), you can edit your local code and re-publish. The Domo CLI speeds up this cycle; for instance, you could run `domo publish --replace` to update the existing app design. Refresh the card in Domo to see changes. Check the browser console for any runtime errors or logs (useful for debugging things like `domo.get` responses). Common pitfalls might include misnamed dataset aliases (the code must use the alias exactly as in manifest) ([Custom Domo App (Replicating the SugarForce example) — Domo Community Forum](https://community-forums.domo.com/main/discussion/68210/custom-domo-app-replicating-the-sugarforce-example#:~:text=In%20your%20manifest%20file%20you,leads)), or missing domo.js library. If the card doesn’t load at all, ensure your manifest and file structure are correct (Domo might show an error in the card if manifest is malformed). 
+
+For debugging data calls, you can use `console.log` and the DevTools network tab. The Domo CLI dev mode (`domo develop`) can also help by auto-reloading your app in Domo as you save changes. When using `domo develop`, the CLI often provides a local URL which Domo uses to fetch updated code; you might see network requests every few seconds as it pulls new builds ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=,the%20list%20every%2015%20seconds)). This can significantly speed up the trial-and-error cycle.
+
+**7. Polishing the App:** Once the app works correctly, consider adding polish:
+   - Update the `thumbnail.png` in the `domo` folder so your app has a nice icon in the library ([GitHub - DomoApps/starter-kit: This is an advanced Domo App project starter (boilerplate).](https://github.com/DomoApps/starter-kit#:~:text=,json%20documentation)).
+   - Double-check the manifest description and other metadata (this helps others understand the app).
+   - Remove any console logs or test code.
+   - If your app uses external APIs or complex logic, ensure error handling is robust and perhaps use Domo’s **DataFlows** to preprocess data (offload heavy computation to ETL rather than in-browser).
+   - **Best Practice:** Keep your Domo app lean – use Domo for what it’s good at (data storage, queries, aggregations, security) and use the app for visualization and interaction. For example, if you need to compute a large summary, consider doing it in a Domo dataset ahead of time rather than in JavaScript on the fly.
+
+Now you have a working custom Domo card powered by the App Framework! It fetches data, shows a visualization, and even writes back data to AppDB. Next, we’ll delve deeper into working with AppDB and then look at some example projects and advanced tips.
+
+## Working with Domo AppDB (Persistent App Storage)
+
+Domo AppDB is a powerful feature of the App Framework that gives each app instance a mini database for storing structured JSON data. This is especially useful for scenarios where your app needs to maintain state or user-generated content – things like form inputs, user preferences, intermediate calculations, or small reference tables. Each AppDB is scoped to an individual app instance (card), which means data stored in one dashboard’s app card won’t be seen by another instance of the same app unless you explicitly sync or share it.
+
+**Key characteristics of AppDB:**
+- It is schemaless (schemaless in usage, though for syncing to a dataset you define a schema) and stores data as JSON documents. You organize data into **collections**, which are analogous to tables in a relational DB or collections in MongoDB.
+- You interact with AppDB via RESTful API endpoints (using `domo.get`, `domo.post`, `domo.put`, etc., through the `domo` JS object). Under the hood, these calls go to endpoints like `/domo/datastores/v1/collections/<CollectionName>/...`.
+- AppDB operations are transactional at the document level – you can insert, query, update, and delete documents.
+- You can configure automatic synchronization of a collection to a Domo dataset. This is great for persisting data outside the app or analyzing it with Domo’s tools. When sync is enabled, AppDB will push its data to a dataset in your Domo instance (one dataset per collection) that you specify.
+
+**Defining Collections in manifest.json:** To use AppDB, you declare collections in your app’s manifest under the `"collections"` section. We saw an example earlier for "MyCollection". Let’s expand on that. Suppose our app needs two collections: one for "Tasks" and one for "Users". We want "Tasks" to sync to a Domo dataset so that we can report on tasks in Domo Analyzer outside the app. The manifest entry might look like:
+
+```json
+"collections": [
+  {
+    "name": "Tasks",
+    "schema": {
+      "columns": [
+        {"name": "task", "type": "STRING"},
+        {"name": "completed", "type": "BOOLEAN"},
+        {"name": "createdAt", "type": "DATETIME"}
+      ]
+    },
+    "dataSetId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "syncEnabled": true
+  },
+  {
+    "name": "Users",
+    "syncEnabled": false
+  }
+]
+```
+
+Here:
+- **Tasks** collection has a defined schema with three fields and is linked to a dataset (with a given ID). `syncEnabled: true` means that whenever this app instance’s Tasks collection is updated, it will attempt to synchronize those documents to the specified Domo dataset. The dataset must exist (you could create an empty dataset with matching schema manually, or possibly the first sync will create it if the ID is left blank – but usually you provide one). Because we listed the columns, AppDB knows how to map the JSON `content` of each document to columns. For example, if a document’s content is `{"task":"Finish report","completed":false,"createdAt":"2025-02-27T13:00:00Z"}`, the sync will put “Finish report” in the **task** column, false in **completed**, and the timestamp in **createdAt** column.
+- **Users** collection has no explicit schema here and is not synced. It will only live within AppDB. (By default, if no schema is given, the document content can be anything. If later you decide to sync it, you’d have to define a schema and dataset.)
+
+**Using AppDB in code:** Within your app’s JavaScript, use the `domo` object to manipulate AppDB:
+- Insert a document: `domo.post('/domo/datastores/v1/collections/Tasks/documents', { content: { ... } })` – as shown in the earlier example.
+- Retrieve documents: `domo.get('/domo/datastores/v1/collections/Tasks/documents?limit=100')` to get documents (with their auto-generated IDs and content). Or you can get a specific document by ID: `domo.get('/domo/datastores/v1/collections/Tasks/documents/<docId>')`.
+- Query documents: `domo.post('/domo/datastores/v1/collections/Tasks/documents/query', { query: { "completed": false } })` – AppDB supports MongoDB-like query JSON to filter documents. For instance, this could retrieve all tasks where completed is false. The response will include all matching documents.
+- Update a document: There are a couple ways – you can `PUT` to the document’s URL or use a bulk update endpoint. For example, to mark a task complete, you might do:
+  ```js
+  domo.put(`/domo/datastores/v1/collections/Tasks/documents/${docId}`, 
+           { content: { task: "Finish report", completed: true, createdAt: "2025-02-27T13:00:00Z" } });
+  ```
+  This replaces the content. Alternatively, `POST /documents/update` with a query and update payload can update multiple docs.
+- Delete a document: `domo.delete('/domo/datastores/v1/collections/Tasks/documents/<docId>')` will remove that entry.
+- Count or aggregate: You can use a query with aggregation (there’s an endpoint `/query?aggregate=true` or similar) to do things like count documents or sum a field. But often it’s easier to fetch and handle in JS or rely on sync to Domo and then use Domo’s dataset capabilities for heavy aggregations.
+
+All these calls return promises (since `domo.get` etc. are asynchronous). Using `async/await` or `.then()` as shown will let you handle the results.
+
+**Best Practices with AppDB:**
+- **Use appropriate data types:** Even though AppDB is JSON, if you plan to sync to a dataset, define the schema types correctly (STRING, NUMBER, DATETIME, etc.). This ensures the Domo dataset has correct typing.
+- **Beware of size limits:** AppDB is meant for transactional data, not huge volumes. While it can store thousands of documents, if you find yourself trying to store extremely large data in AppDB, consider using a regular Domo Dataset instead. AppDB is great for user inputs, small reference lists, or caching a subset of data.
+- **Syncing considerations:** When `syncEnabled` is true, any changes in AppDB will periodically (or on demand) be pushed to the dataset. You can manually trigger a sync (export) by calling the export API: `domo.put('/domo/datastores/v1/export', {})` which forces a sync of all collections that have sync enabled. Typically, Domo might sync at intervals automatically as well. Keep in mind the sync is one-way (AppDB to dataset). If you need two-way, you would have to manage importing dataset changes into AppDB manually via the API.
+- **Security:** Data in AppDB is only accessible to the app instance. However, if a user has access to the dashboard, they could potentially open developer tools and see the JSON being sent. Don’t store sensitive secrets in AppDB (and certainly not in plain text). However, storing user-entered data or app state is fine – it’s as secure as the app itself.
+
+By leveraging AppDB, your Domo apps can go beyond read-only dashboards to truly interactive applications – for example, writeback apps (sending data back to Domo or other systems), form submissions, or collaboration tools. AppDB essentially gives each app a memory.
+
+Finally, if you want to analyze or reuse the data collected in AppDB outside the app, ensure you enable sync to a Domo dataset. As one Domo developer noted, *“You can sync an AppDB to a dataset in Domo by setting `syncEnabled` to true and defining a dataset ID and schema in the manifest.”* ([Regarding domo APP DB — Domo Community Forum](https://community-forums.domo.com/main/discussion/55320/regarding-domo-app-db#:~:text=Hi%20%40ravikirand)) Once synced, the collected data (e.g., tasks, form responses) will appear in your Data Center like any other dataset, allowing you to build traditional cards or alerts on it.
+
+## Example Projects and Use Cases
+
+To solidify understanding, let’s look at a few example projects and use cases that demonstrate how Domo Bricks and the App Framework can be combined to create powerful solutions. These examples illustrate patterns you can follow and adapt.
+
+**Example 1: Sales Pipeline App (SugarForce)** – *CRM-style multi-page app using Domo data and Bricks.*  
+SugarForce is an example app (created by Domo’s sample code team) that mimics a simple CRM system on Domo. It showcases multiple pages or views within one app and interactive charts. The app pulls in sales leads data (e.g., from a dataset of opportunities) and allows the user to filter and drill into details. Key features:
+- It uses **multiple Domo Bricks** for visualization: for instance, a custom funnel chart Brick to show pipeline stages, and a table Brick to list top deals.
+- The App Framework is used to handle navigation (e.g., clicking a lead opens a detailed view – achieved by changing the view state within the app).
+- It relies on **datasets mapping** in the manifest: an alias for leads data, another for accounts data, etc. (In the manifest, you’d see multiple entries under datasetsMapping, each with an alias like "leads", "accounts" pointing to relevant dataset IDs.)
+- Possibly uses **AppDB** for user-specific settings (like which region’s pipeline is being viewed, if not directly derivable from the dataset).
+- SugarForce demonstrates how far you can go beyond a static dashboard – combining data, workflow, and even write-back (it could allow adding a note to a lead, for example, which would use AppDB or an API call).
+
+While the full code is complex, the takeaway is that by using Bricks for the visuals and the App Framework for structure, you can create a self-contained app that feels like a mini web application inside Domo. Domo has a GitHub repository with a walkthrough for SugarForce, and a recorded demo, which show how to implement features like routing and using the `domo.js` library for data operations.
+
+**Example 2: Return Merchandise Authorization (RMA) Tracker** – *Single-page app with write-back.*  
+Imagine a retail company wants a Domo app to manage product return cases. The app should list recent return requests, allow managers to approve/deny returns, and log the outcomes.
+- **Data Integration:** The app maps to a “Returns” dataset (containing all return requests) via an alias. It might also map to a “Inventory” dataset if needed to check stock.
+- **UI:** One DDX Brick used is a table Brick that displays returns in a grid with color coding for status. Another Brick might be a form for processing a selected return.
+- **Interactivity:** When a manager selects a return request and clicks “Approve”, the app uses `domo.update` (or an API to an external system) to mark that return as approved. This could involve writing to AppDB (to store the decision and maybe push via sync to a “Processed Returns” dataset) or directly calling an external webhook.
+- **Workflow Integration:** Using Domo Workflows, the app could trigger a predefined workflow when a return is approved – for example, send an email to the warehouse. The app could call something like `domo.post('/domo/workflows/v1/trigger/...')` if an API is available, or insert a record into a dataset that a Domo Workflow watches.
+- **AppDB Usage:** The app might use AppDB to keep a log of actions taken by each user, or to store a “session cart” of returns being processed in a batch before final submission.
+
+This RMA Tracker shows a pattern of an **operational app** inside Domo – moving from passive BI to active management. By following best practices (manifest alias for the main data, using Bricks for UI components, and AppDB for transactions), the app remains responsive and leverages Domo’s backend for heavy lifting (data storage and workflow).
+
+**Example 3: Executive KPI Dashboard App** – *Customized visualization app (pure Bricks).*  
+Consider a scenario where an executive wants a highly stylized dashboard with interactive filters and unique charts not available out-of-box. Instead of static dashboard cards, you build an App:
+- **Visual Bricks:** Use Domo Bricks to create bespoke visuals – e.g., a custom gauge chart for each KPI, maybe using D3 internally, and a map visualization using Mapbox for regional performance.
+- **Global Filters:** The app could have a filter panel (HTML/JS) that writes filter selections to AppDB or uses the dataset query API to fetch filtered data. (Note: Currently, Domo does not provide a built-in way for a custom app to broadcast filters to other cards, due to app isolation ([Filter Request from Custom Domo App — Domo Community Forum](https://community-forums.domo.com/main/discussion/58341/filter-request-from-custom-domo-app#:~:text=and%20found%20that%20it%20mainly,time%20interactive%20operations)). So the app would handle filtering within itself.)
+- **Data:** Multiple datasets might feed into this app (sales, expenses, targets, etc.), each given an alias in the manifest. The app’s code pulls data from each via `domo.get` and renders the corresponding Brick visual.
+- **Layout:** Perhaps uses a CSS grid or framework to arrange components, making it responsive. Could allow drilling: clicking on a KPI Brick might transition to a detailed view (e.g., clicking a sales gauge shows a breakdown chart).
+- **No write-back needed:** This is mostly a read-only dashboard, but with custom visuals. AppDB might only be used to store user’s last filter selection (so that next time they open the app, it remembers their filters, for example).
+
+This showcases that even for primarily visualization needs, wrapping everything in an App gives you more flexibility in design (any layout, any interaction) at the cost of a bit more initial setup compared to standard cards. Since this guide assumes a top 1% developer, such an approach might be preferable to get exactly the UI/UX desired.
+
+**Example 4: “Hello World” Tutorial App (Vanilla JS)** – *Starter template*  
+For completeness, Domo’s own “Hello World” tutorial (often the first thing in Dev Studio) is an example to ensure everything is wired correctly:
+- It prints a “Hello World” message on the card (to verify your app deploys).
+- Possibly fetches the current user’s name using `domo.get('/domo/environment/user')` or a similar call from domo.js to show the user it’s context-aware (for instance, greeting with “Hello, [User]!”). The environment API provides details like user info, instance info, etc., which can be accessed via `domo.env` or `domo.get` endpoints ([Vue + Vite setup for DOMO? — Domo Community Forum](https://community-forums.domo.com/main/discussion/57610/vue-vite-setup-for-domo#:~:text=More%20specifically%20this%20would%20be,you%20can%20read%20about%20here)).
+- It might include a simple dataset fetch as well, just to demonstrate the alias mapping (for example, counting rows in a dataset and displaying the count).
+- This app is intentionally basic but is a good template to verify your CLI, manifest, and deployment process.
+
+**Learning from Examples:** Each of these illustrates different aspects – multi-view navigation, interactive forms, custom charts, filter logic, etc. You can often mix and match these techniques in one app. The Domo community forums and Domo Appstore showcase many apps: from mapping every seat in a stadium (Utah Jazz’s app for ticket sales ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Driving%20revenue%20using%20a%20customized,map%20visualization)) ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=The%20Utah%20Jazz%20worked%20with,of%20the%20arena%E2%80%99s%2019%2C000%2B%20seats))), to social media monitoring apps (ESPN’s app tracking fan engagement ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Keeping%20a%20pulse%20on%20fan,engagement)) ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=ESPN%E2%80%99s%20Nielsen%20Social%20Program%20App,fans%20in%20the%20contact%20center))), to operational dashboards for retail stores (Telus store performance app ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Real)) ([ Build pro-code apps on Domo. | Domo ](https://www.domo.com/business-apps/app-dev-framework#:~:text=Impact))). These real-world apps were built with the same tools you have: Domo’s App Framework and Bricks. They often started as small prototypes (maybe a Brick or two), then expanded into full solutions as requirements grew.
+
+When designing your own project, start by outlining what data you need, what the UI should look like, and where any write-back or external integration is required. Then decide on how many dataset aliases and collections you’ll use, and what Bricks or libraries suit the visual needs. Build incrementally: get a basic version working (even if not pretty), then enhance it with more complex visuals or interactions. Because you can always inspect and interact with the app in a live Domo environment, you have a tight feedback loop for improvement.
+
+## Best Practices for Efficient Domo App Development
+
+Building on the above, here are some best practices and tips to ensure your Domo app development is smooth and the end result is performant and maintainable:
+
+- **Design with Reusability:** Leverage the fact that one app design can power multiple instances. Use manifest parameters (like dataset aliases and collection definitions) to make your app flexible. For example, instead of hard-coding a dataset ID in your code, always use the alias. This way the same app can be added in different departments with different data by just mapping a different dataset upon card creation ([Custom Domo App (Replicating the SugarForce example) — Domo Community Forum](https://community-forums.domo.com/main/discussion/68210/custom-domo-app-replicating-the-sugarforce-example#:~:text=In%20your%20manifest%20file%20you,leads)). Similarly, if you foresee the need for slight variations, consider making them configurable (via dataset values or even a small config JSON in AppDB).
+
+- **Optimize Data Usage:** Only retrieve the data you need for display. Use query parameters on `domo.get` calls (like `select=` fields, `limit=`, `filter=` if available) to reduce payload size. If your dataset is huge but you only need aggregated results, try to perform that aggregation in a Beast Mode or DataFlow beforehand. Remember, the app runs in the user’s browser; fetching 100k rows into the browser is usually not ideal. Instead, aggregate in Domo (or use server-side options like Domo’s **Code Engine** or dataset views) and fetch a summary for the app.
+
+- **Async Loading and Feedback:** Domo apps, like any web apps, benefit from showing loading indicators or skeleton screens while data is fetched. Consider using a spinner or a “Loading data...” message while your `domo.get` promises are pending. This improves perceived performance and user experience.
+
+- **Error Handling:** Use `.catch` on promises (or try/catch in async functions) to handle errors from Domo API calls. Common errors could be: the user doesn’t have access to the data, network issues, or an improper API path. Gracefully inform the user (e.g., “Unable to load data, please contact admin”) rather than silently failing.
+
+- **Security and Permissions:** Domo ensures that if a user viewing the app card lacks access to a dataset, the `domo.get` will fail for that data. You might handle this by checking `err.status === 403` and showing a friendly message like “You do not have permission to view this data.” Also, consider that write operations (e.g., posting to AppDB or other APIs) will run under the credentials of the viewer. If only certain roles should perform an action, you can either rely on dataset policies or do a runtime check via `domo.get('/domo/environment/user')` to get user roles and enforce in the UI (not a security feature by itself, but for user guidance).
+
+- **Leverage Domo Services:** Your app can call any Domo REST API that your account has access to, via `domo.get/post`. This includes things like updating datasets, triggering data refreshes, invoking Domo **Buzz** (chat) messages, or leveraging **Domo Streams**. Advanced developers can integrate these to create truly dynamic applications (for example, an app that pushes new data into Domo by calling a dataset upload API, etc.). Always ensure the API is meant to be called from client-side and won’t expose sensitive tokens.
+
+- **Testing in Various Environments:** Test your app in Domo on different browsers and devices if users will access on mobile. Domo cards can be viewed on the Domo mobile app as well – ensure your HTML/CSS is responsive. The manifest `width` and `height` determine the default size on a dashboard, but users can resize the card – make sure your app can expand or contract gracefully. Use relative CSS units or flexbox/grid for layout so it adapts to card size.
+
+- **Performance Tuning:** If your app is doing expensive computations on data, consider moving that to a **Domo Beast Mode** calculation, a DataFlow, or using the **Domo Code Engine** (which allows running Node or Python code in the backend on a schedule) ([Code Engine - Domo Support](https://domo-support.domo.com/minasan/s/article/000005173?language=en_US#:~:text=Code%20Engine%20,write%2C%20test%2C%20and%20distribute%20functions)). The front-end should mostly render and handle interactivity, leaving heavy data crunching to the backend (Domo is quite capable there).
+
+- **Source Control:** Treat your app code like any software project – use version control (git) to track changes. This is especially important since you might iterate frequently. You can connect your repository to multiple developers; just ensure one runs `domo publish` when ready to deploy changes.
+
+- **Community & Support:** The Domo developer community is active. If you encounter issues, the Domo Community Forums’ **APIs & Domo Developer** section is a great place to search for similar questions or ask new ones. For instance, troubleshooting a `domo.get` 404 error led to advice about using the correct dataset alias in code ([Custom Domo App (Replicating the SugarForce example) — Domo Community Forum](https://community-forums.domo.com/main/discussion/68210/custom-domo-app-replicating-the-sugarforce-example#:~:text=In%20your%20manifest%20file%20you,leads)). Domo’s support and consulting teams can also assist if you’re an enterprise customer tackling a big project.
+
+With these best practices in mind, you can avoid common pitfalls and create Domo apps that are robust and efficient. The combination of Domo Bricks for rapid UI development and the Domo App Framework for full-stack capabilities gives you a lot of power – essentially, you have a full web platform at your disposal, with the advantage of being plugged into Domo’s rich data ecosystem. 
+
+## API References and Cheat Sheet
+
+For quick reference, here’s a summary of commonly used APIs, CLI commands, and resources in Domo app development:
+
+**Domo CLI Commands:**
+- `domo login` – Authenticate and set the active Domo instance for the CLI ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=,the%20following%20in%20your%20terminal)).
+- `domo init` – Initialize a new app. Creates the manifest and optional starter code ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=Create%20your%20App%27s%20manifest)). Use this in an empty directory.
+- `domo develop` – Run a local development session (if supported). Often this hosts your files on a local server and syncs to Domo for preview.
+- `domo publish` – Publish (deploy) the app to your Domo instance. This creates or updates the app in the Appstore/Library.
+- `domo publish --replace` – Force update the existing app (useful if you changed the manifest or want to overwrite an existing version).
+- `domo logs` – Fetch logs for your app, if any (for debugging server-side issues; note that most app code runs client-side, but some errors might surface here).
+- `domo --help` – General help on CLI commands.
+
+**Manifest.json Fields (partial list):**
+- `name` – Name of the app.
+- `description` – Short description of app functionality.
+- `width`, `height` – Default size of the app card in dashboard grid units ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=The%20default%20size%20in%20the,and%20change%20the%20following)).
+- `datasets` – Array of dataset requirements. Each entry may include `id` (the dataset GUID, or an empty string if you want to select later), `alias` (name used in code for this dataset), and optionally `writebackId` if the app writes to a dataset.
+- `collections` – Array of AppDB collections for the app. Each entry has `name`, and optionally `schema` (with column definitions), `dataSetId` (to sync to), `syncEnabled` (true/false), and other settings.
+- `files` – (If using Domo’s file API) definitions for files the app uses.
+- `configuration` – (Optional) Allows user-configurable settings for the app that can be input when adding the card (not extensively covered in this guide, but exists for parameterizing apps).
+- `preferences` – Similar to configuration, often used for user preferences storage.
+
+**domo.js Front-end API (accessible via global `domo` object):**
+- `domo.get(path)` – Perform a GET request to a Domo endpoint. Common uses:
+  - `/data/v1/{alias_or_datasetId}` – get data from a dataset (v1 returns an array of rows).
+  - `/data/v2/{alias_or_datasetId}` – get data with more metadata (v2 returns an object with `data` and `schema`). Use v1 or v2 depending on needs.
+  - `/domo/datastores/v1/collections/{name}/documents` – get all documents in an AppDB collection.
+  - `/domo/datastores/v1/collections/{name}/documents/{docId}` – get one document.
+  - Other Domo APIs: e.g., `/domo/users/v1/{userId}` to get user info, `/domo/groups/v1/{groupId}` etc., if your app needs them.
+- `domo.post(path, body)` – Perform a POST request. Common uses:
+  - `/domo/datastores/v1/collections/{name}/documents` – insert a new AppDB document (body should be `{ "content": {...} }`).
+  - `/domo/datastores/v1/collections/{name}/documents/query` – query AppDB (body contains a query object).
+  - `/data/v1/{datasetId}` – *In some contexts, posting to data API can upsert data if you have write APIs enabled.* However, typically writing to Domo datasets is done via DataSets API with client-side authentication or via AppDB sync. Direct `domo.post` to a dataset might not be allowed for all instances.
+  - Any custom API endpoint if you have one (e.g., if Domo is hosting a custom endpoint or you call out to a third-party API, though for third-party you’d call directly to their URL, not via `domo`).
+- `domo.put(path, body)` – Perform a PUT request. Common uses:
+  - `/domo/datastores/v1/collections/{name}/documents/{docId}` – update an existing AppDB document (replace content with provided body content).
+  - `/domo/datastores/v1/export` – trigger AppDB sync (body can be empty or specify collection).
+- `domo.delete(path)` – Perform a DELETE request. Common uses:
+  - `/domo/datastores/v1/collections/{name}/documents/{docId}` – delete an AppDB document.
+- `domo.env` (or via an API call to environment):
+  - `domo.env.userId` or similar properties provide the current user info. The environment object can include many things (like locale, instance name, etc.). Domo’s documentation for **domo.js environment** lists all available fields ([Vue + Vite setup for DOMO? — Domo Community Forum](https://community-forums.domo.com/main/discussion/57610/vue-vite-setup-for-domo#:~:text=More%20specifically%20this%20would%20be,you%20can%20read%20about%20here)).
+  - Alternatively, `domo.get('/domo/environment')` might return an object with environment details including the current user and instance settings.
+
+**DomoPhoenix (Charts library):**
+- `DomoPhoenix.Chart(type, data, options)` – create a chart. 
+  - `type` is an enum available at `DomoPhoenix.CHART_TYPE` (e.g., `BAR`, `LINE`, `PIE`, etc.).
+  - `data` is an object with `columns` (array of {name, type, mapping}) and `rows` (array of arrays). Types are like `DomoPhoenix.DATA_TYPE.STRING` or `NUMBER`, and mappings like `DomoPhoenix.MAPPING.ITEM` or `VALUE` to tell what role the column plays ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=const%20data%20%3D%20,type%3A%20DATA_TYPE.STRING)) ([GitHub - DomoApps/StarterKit: The easiest way to get started with a Domo dev studio app](https://github.com/DomoApps/StarterKit#:~:text=rows%3A%20,STRING%2C%20name%3A%20%27Customer%20Segment)).
+  - `options` is an object for chart-specific settings (like legend placement, colors, etc.).
+- The chart object has a `canvas` or `node` you can attach to the DOM, and methods to update data if needed.
+
+**Tips:**
+- Many of the above API calls require understanding of Domo’s REST API. The Domo Developer Portal (docs) provides details on each endpoint (for example, the Data API, Stream API, User API, etc.). When in doubt, refer to those docs for the expected request and response formats.
+- If you see an error from a `domo` API call, the error object often has an HTTP `status` and maybe a message. Use that to debug (e.g., 400 means bad request, 403 means forbidden, 404 means not found – possibly wrong alias or ID, 500 is server error).
+- Logging: You can use `console.log` in your app code; open your browser’s dev console while viewing the card in Domo (if you have appropriate access, you can use developer tools in most modern browsers even within embedded content) to see those logs.
+
+With this cheat sheet and the guidance above, you should have a self-contained knowledge base for creating Domo apps. You have seen how to use Domo Bricks to create custom visual components and how to use the Domo App Framework to tie those components into full applications with data and state. The combination allows you to deliver bespoke analytics apps on the Domo platform – from simple widget extensions to complex, multi-page data applications. Happy coding!
+
